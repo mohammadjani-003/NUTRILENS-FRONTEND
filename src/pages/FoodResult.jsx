@@ -1,5 +1,6 @@
 import { analyzeFood } from "../utils/foodAnalysis";
 import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 import "../styles/global.css";
 
 export default function FoodResult() {
@@ -9,6 +10,12 @@ export default function FoodResult() {
   const conditions = healthProfile.conditions || [];
 
   const data = analyzeFood(food.toLowerCase(), conditions);
+
+  useEffect(() => {
+    if (!food || !food.trim()) {
+      navigate("/dashboard");
+    }
+  }, [food, navigate]);
 
   return (
     <div
