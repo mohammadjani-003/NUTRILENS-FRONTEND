@@ -50,7 +50,18 @@ export default function Dashboard() {
 
     recognition.onresult = (event) => {
       const transcript = event.results[0][0].transcript;
-      setFoodInput((prev) => (prev ? prev + " " + transcript : transcript));
+      setFoodInput(transcript);
+
+      // Automatically trigger analysis after speaking
+      if (transcript.trim()) {
+        localStorage.setItem("food", transcript);
+        localStorage.setItem("selectedLang", lang);
+
+        // Brief delay so user can see their spoken text before redirect
+        setTimeout(() => {
+          navigate("/result");
+        }, 800);
+      }
     };
 
     recognition.start();
@@ -62,6 +73,7 @@ export default function Dashboard() {
       return;
     }
     localStorage.setItem("food", foodInput);
+    localStorage.setItem("selectedLang", lang); // Save selected language
     navigate("/result");
   };
 
@@ -77,12 +89,25 @@ export default function Dashboard() {
       {/* Navbar */}
       <nav className="dashboard-nav">
         <div className="nav-logo">NUTRILENS 🥗</div>
-        <button
-          className="nav-profile-btn"
-          onClick={() => navigate("/health-profile")}
-        >
-          <span>👤 My Profile</span>
-        </button>
+        <div style={{ display: "flex", gap: "10px" }}>
+          <button
+            className="nav-profile-btn"
+            onClick={() => navigate("/history")}
+            style={{
+              background: "rgba(15, 23, 42, 0.05)",
+              border: "1px solid rgba(15, 23, 42, 0.1)",
+              color: "var(--dark)",
+            }}
+          >
+            <span>📜 History</span>
+          </button>
+          <button
+            className="nav-profile-btn"
+            onClick={() => navigate("/health-profile")}
+          >
+            <span>👤 My Profile</span>
+          </button>
+        </div>
       </nav>
 
       <div className="dashboard-content">
@@ -220,7 +245,12 @@ export default function Dashboard() {
                   <button
                     key={index}
                     className="recent-chip"
-                    onClick={() => setFoodInput(item.text)}
+                    onClick={() => {
+                      setFoodInput(item.text);
+                      localStorage.setItem("food", item.text);
+                      localStorage.setItem("selectedLang", lang);
+                      setTimeout(() => navigate("/result"), 500);
+                    }}
                   >
                     {item.emoji} {item.text.split(" ").slice(0, 2).join(" ")}...
                   </button>
